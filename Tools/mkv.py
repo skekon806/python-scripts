@@ -7,8 +7,8 @@ from typing import Dict, List, Optional, Tuple, TypeVar
 
 # ========== 全局配置 ==========
 VIDEO_DIR = Path.cwd()
-MKVMERGE = Path(r"D:\Software\Scoop\apps\MKVToolNix\current\mkvmerge.exe")
-MKVPROREDIT = Path(r"D:\Software\Scoop\apps\MKVToolNix\current\mkvpropedit.exe")
+MKVMERGE = Path(r"mkvmerge")
+MKVPROREDIT = Path(r"mkvpropedit")
 EPISODES_TXT = "episodes.txt"
 LOG_FILE: Path = VIDEO_DIR / f"mkv_tool_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 

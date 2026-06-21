@@ -101,7 +101,7 @@ Remove-Item -Recurse -Force ..\temp
 ```powershell
 # 安装PowerShell 7
 winget install Microsoft.Powershell
-# Administrator运行，安装PSReadLine，win11不用
+# Administrator运行，为Poweshell5.1安装PSReadLine，win11不用
 Install-Module -Name PSReadLine -Force -AllowClobber
 ```
 
@@ -109,5 +109,3 @@ Install-Module -Name PSReadLine -Force -AllowClobber
 # 清空PSReadLine的历史记录
 Clear-Content (Get-PSReadLineOption).HistorySavePath
 ```
-
-

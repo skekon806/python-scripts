@@ -11,7 +11,7 @@ lsblk -f
 sudo vi /etc/fstab
 
 # <UUID>        <挂载点>        <文件系统>    <选项>                    <转储> <检查>
-UUID=你的UUID   /data   ntfs-3g       defaults,uid=1000,gid=1000,umask=0022   0      0
+UUID=<你的UUID>   /data   ntfs-3g       defaults,uid=1000,gid=1000,umask=0022   0      0
 
 ```
 ## 挂载移动硬盘出现问题
@@ -19,9 +19,7 @@ UUID=你的UUID   /data   ntfs-3g       defaults,uid=1000,gid=1000,umask=0022   
 sudo mkdir -p /media/NEWSMY
 
 
-UUID=746CE1476CE104A8 /media/NEWSMY ntfs-3g defaults,uid=1000,gid=1000,umask=0022,x-gvfs-show,nofail 0 0
-
-
+UUID=<你的UUID>  /media/NEWSMY ntfs-3g defaults,uid=1000,gid=1000,umask=0022,x-gvfs-show,nofail 0 0
 ```
 
 
