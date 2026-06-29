@@ -1,7 +1,6 @@
 ## 挂载盘
 
 ```bash
-
 sudo apt update
 #支持ntfs格式的分区
 sudo apt install ntfs-3g 

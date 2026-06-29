@@ -78,6 +78,11 @@ git config --global user.name "skekon806"
 git config --global user.email "skekon806@qq.com"
 # 配置换行符
 git config --global core.autocrlf true
+# input 在Linux中配置
+git config --global core.autocrlf input
+
+git config --global core.safecrlf true
+
 ```
 
 ### Git恢复
@@ -109,3 +114,60 @@ Install-Module -Name PSReadLine -Force -AllowClobber
 # 清空PSReadLine的历史记录
 Clear-Content (Get-PSReadLineOption).HistorySavePath
 ```
+
+## WSL使用
+
+### WSL 安装
+```Powershell
+# 开启虚拟机和WSL可选功能
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+```
+
+```PowerShell
+# 下载安装WSL和Debian
+wsl --install -d Debian
+wsl --set-default-version 2
+wsl --update
+wsl --set-version Debian 2
+```
+
+### WSL Debian换源
+```bash
+cd /etc/apt/sources.list.d/
+sudo vi debian.sources
+
+# 粘贴
+Types: deb
+URIs: https://mirrors.tuna.tsinghua.edu.cn/debian
+Suites: trixie trixie-updates trixie-backports
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+# 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释
+# Types: deb-src
+# URIs: https://mirrors.tuna.tsinghua.edu.cn/debian
+# Suites: trixie trixie-updates trixie-backports
+# Components: main contrib non-free non-free-firmware
+# Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+# 以下安全更新软件源为官方源配置
+Types: deb
+URIs: https://security.debian.org/debian-security
+Suites: trixie-security
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+# Types: deb-src
+# URIs: https://security.debian.org/debian-security
+# Suites: trixie-security
+# Components: main contrib non-free non-free-firmware
+# Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+```
+
+## Docker Desktop 安装
+
+[教程](https://docs.docker.com/desktop/features/wsl/#turn-on-docker-desktop-wsl-2)
+
