@@ -1,28 +1,71 @@
-## 挂载盘
+# Debian 笔记
+
+> 个人 Debian 开发环境配置备忘，按场景分类。
+
+---
+
+## 目录
+
+- [系统初始化](#系统初始化)
+- [磁盘挂载](#磁盘挂载)
+- [目录软链接](#目录软链接)
+- [WPS 字体](#wps-字体)
+- [开发工具](#开发工具)
+- [GNOME 设置](#gnome-设置)
+- [Dotfiles 备份](#dotfiles-备份)
+
+---
+
+## 系统初始化
 
 ```bash
 sudo apt update
-#支持ntfs格式的分区
-sudo apt install ntfs-3g 
-#查看分区信息，拷贝UUID
-lsblk -f
-# 记得备份 sudo cp /etc/fstab /etc/fstab.bak
-sudo vi /etc/fstab
+```
 
-# <UUID>        <挂载点>        <文件系统>    <选项>                    <转储> <检查>
-UUID=<你的UUID>   /data   ntfs-3g       defaults,uid=1000,gid=1000,umask=0022   0      0
+---
+
+## 磁盘挂载
+
+### 挂载 NTFS 数据盘
+
+```bash
+# 安装 ntfs-3g 以支持 NTFS 格式
+sudo apt install ntfs-3g
+
+# 查看分区 UUID
+lsblk -f
+
+# 备份 fstab
+sudo cp /etc/fstab /etc/fstab.bak
+
+# 编辑 fstab 添加挂载项
+sudo vi /etc/fstab
+```
+
+`/etc/fstab` 追加：
 
 ```
-## 挂载移动硬盘出现问题
+# <UUID>      <挂载点>   <文件系统>  <选项>                                  <转储> <检查>
+UUID=<UUID>   /data      ntfs-3g     defaults,uid=1000,gid=1000,umask=0022   0      0
+```
+
+### 挂载移动硬盘
+
 ```bash
 sudo mkdir -p /media/NEWSMY
-
-
-UUID=<你的UUID>  /media/NEWSMY ntfs-3g defaults,uid=1000,gid=1000,umask=0022,x-gvfs-show,nofail 0 0
 ```
 
+`/etc/fstab` 追加：
 
-## 软连接到数据盘
+```
+UUID=<UUID>  /media/NEWSMY ntfs-3g defaults,uid=1000,gid=1000,umask=0022,x-gvfs-show,nofail 0 0
+```
+
+---
+
+## 目录软链接
+
+将用户目录链接到数据盘：
 
 ```bash
 rmdir ~/下载
@@ -38,67 +81,77 @@ rmdir ~/图片
 ln -s /data/Files/Pictures ~/图片
 ```
 
-## WPS字体
+---
+
+## WPS 字体
 
 ```bash
 sudo cp *.ttc /usr/share/fonts/wps-office/
 sudo cp *.ttf /usr/share/fonts/wps-office/
-
 sudo chmod 644 /usr/share/fonts/wps-office/*
-
 sudo fc-cache -fv
 ```
 
+---
 
-## 下载idea
+## 开发工具
+
+### IDEA
 
 ```bash
 tar -zxvf ideaIC.tar.gz -C ~/tools/
-
 mv ~/tools/ideaIC ~/tools/idea
-
 ```
 
-## gnome设置
+---
+
+## GNOME 设置
 
 ```bash
 sudo apt install gnome-tweaks gnome-shell-extensions
 
+# 备份 GNOME 设置
 dconf dump / > ~/gnome-settings-backup.ini
 ```
 
-下载gnome扩展
+### 推荐扩展
 
-[customize-ibus](https://extensions.gnome.org/extension/4112/customize-ibus/)
+- [Customize IBus](https://extensions.gnome.org/extension/4112/customize-ibus/)
+- [AppIndicator Support](https://extensions.gnome.org/extension/615/appindicatorsupport/)
+- [Clipboard Indicator](https://extensions.gnome.org/extension/779/clipboard-indicator/)
 
-[appindicatorsupport](https://extensions.gnome.org/extension/615/appindicatorsupport/)
+---
 
-[clipboard-indicator](https://extensions.gnome.org/extension/779/clipboard-indicator/)
+## Dotfiles 备份
 
+用 `git --bare` 方式管理配置文件。
 
-## dotfiles 备份 .config
+### 初始化
 
 ```bash
-# 用 git 管理配置文件
 cd ~
 git init --bare ~/.dotfiles
-alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME' #仅在临时会话生效
+alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 dotfiles config --local status.showUntrackedFiles no
-dotfiles add .bashrc 
+dotfiles add .bashrc
 dotfiles commit -m "Backup configs"
 
-# 链接github
-dotfiles remote -v
-dotfiles remote add origin git@github.com:你的用户名/dotfiles.git
-dotfiles push origin master  # 推送到 GitHub/GitLab
+# 关联远程仓库
+dotfiles remote add origin git@github.com:<用户名>/dotfiles.git
+dotfiles push origin master
 ```
+
+### 日常使用
 
 ```bash
-# 后续add commit push
+# 暂存更新
 dotfiles add -u
 dotfiles add ~/.config/mpv
-
+dotfiles commit -m "update config"
+dotfiles push
 ```
+
+### 恢复配置
 
 ```bash
 git clone --bare <git-repo-url> $HOME/.dotfiles
