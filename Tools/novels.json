@@ -1,0 +1,70 @@
+{
+    "22biqu.com": {
+        "name": "from:title",
+        "page_from_select": "select#indexselect",
+        "list_sel": "ul.section-list.fix",
+        "list_idx": 1,
+        "link_sel": "a",
+        "href_attr": "href",
+        "content_body": "div.content#content",
+        "next_page": "下一页",
+        "next_page_max": 10,
+        "content_clean": {
+            "remove_selectors": ["h1.title", "script"],
+            "remove_lines": ["[（(]第.*?章[）)]", "本章未完"],
+            "strip_empty": true,
+            "trim": true
+        },
+        "out_dir": "D:/Files/Documents/E-book/{name}",
+        "out_file": "{index:04d}_{title}.txt",
+        "out_combine": "{name}.txt",
+        "out_combine_dir": "D:/Files/Documents/E-book",
+        "workers": 8,
+        "anti_challenge": true
+    },
+    "jawsms.com": {
+        "name": "from:h1",
+        "page_from_select": "select[name=pageselect]",
+        "list_sel": "ul.section-list.fix",
+        "list_idx": 1,
+        "link_sel": "a",
+        "href_attr": "href",
+        "content_body": "div.content#content",
+        "next_page": "下一页",
+        "next_page_max": 10,
+        "content_clean": {
+            "remove_selectors": ["script"],
+            "strip_empty": true,
+            "trim": true
+        },
+        "out_dir": "D:/Files/Documents/E-book/{name}",
+        "out_file": "{index:04d}_{title}.txt",
+        "out_combine": "{name}.txt",
+        "out_combine_dir": "D:/Files/Documents/E-book",
+        "workers": 8,
+        "anti_challenge": true
+    },
+    "bookszw.com": {
+        "name": "from:title",
+        "page_from_select": "select[name=pageselect]",
+        "list_sel": "ul.section-list.fix",
+        "list_idx": 1,
+        "link_sel": "a",
+        "href_attr": "href",
+        "content_body": "div#content",
+        "next_page": "下一页",
+        "next_page_max": 10,
+        "content_clean": {
+            "remove_selectors": ["h1.title", "script"],
+            "remove_lines": ["[（(]第.*?页[）)]", "本章未完"],
+            "strip_empty": true,
+            "trim": true
+        },
+        "out_dir": "D:/Files/Documents/E-book/{name}",
+        "out_file": "{index:04d}_{title}.txt",
+        "out_combine": "{name}.txt",
+        "out_combine_dir": "D:/Files/Documents/E-book",
+        "workers": 3,
+        "anti_challenge": true
+    }
+}
