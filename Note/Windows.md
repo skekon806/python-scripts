@@ -138,6 +138,17 @@ cd your-target-dir
 robocopy ..\temp . /E /COPY:DAT /DCOPY:T
 Remove-Item -Recurse -Force ..\temp
 ```
+### Git 操作
+```powershell
+#撤销最近一次 commit，但保留修改（最常用
+git reset --soft HEAD~1
+# 从暂存区移除某个文件
+git reset HEAD 文件名
+# 重新添加你想要的
+git add 文件名
+# 提交
+git commit -m "新消息
+```
 
 ---
 

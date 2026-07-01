@@ -6,8 +6,8 @@
   python novel_crawler.py --list
 """
 
-import re, time, os, sys, json, glob
-from urllib.parse import urljoin, urlparse
+import re, time, os, sys, json, glob, webbrowser
+from urllib.parse import urljoin, urlparse, quote
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import requests
@@ -82,25 +82,25 @@ def match_config(url):
 # 小说名提取
 # ============================================================
 
-def extract_name(config, base_url, soup=None):
+def extract_name(base_url, soup=None, config=None):
     if soup is None:
         soup = soup_of(base_url)
-    mode = config.get("name", "from:h1")
-
-    if mode == "from:h1":
-        el = soup.select_one("h1")
-        if el and el.get_text(strip=True):
-            return el.get_text(strip=True)
-
-    if mode == "from:title" or mode == "from:h1":
-        t = soup.select_one("title")
-        if t:
-            text = t.get_text(strip=True)
-            for sep in ["_", "-", "—", "(", "（"]:
-                if sep in text:
-                    return text.split(sep)[0].strip()
-            return text
-
+    if config:
+        sel = config.get("name_sel", "")
+        if sel:
+            el = soup.select_one(sel)
+            if el:
+                return el.get_text(strip=True)
+    t = soup.select_one("title")
+    if t:
+        text = t.get_text(strip=True)
+        m = re.match(r'^(.+?)最新章节', text)
+        if m:
+            return m.group(1).strip()
+        for sep in ["_", "-", "—", "(", "（"]:
+            if sep in text:
+                return text.split(sep)[0].strip()
+        return text
     path = urlparse(base_url).path.rstrip("/")
     return path.split("/")[-1]
 
@@ -118,14 +118,14 @@ def resolve_page_urls(config, base_url, soup=None):
     if not select:
         print(f"  Warning: selector '{sel}' not found, using single page")
         return [base_url.rstrip("/") + "/"]
-    domain = base_of(base_url)
+    directory = base_url.rstrip("/") + "/"
     seen = set()
     result = []
     for opt in select.select("option"):
         val = opt.get("value", "")
         if not val:
             continue
-        url = val if val.startswith("http") else urljoin(domain, val)
+        url = val if val.startswith("http") else urljoin(directory, val)
         if url not in seen:
             seen.add(url)
             result.append(url)
@@ -136,13 +136,58 @@ def resolve_page_urls(config, base_url, soup=None):
 # 章节链接提取
 # ============================================================
 
+_CN_NUM = {
+    '零': 0, '一': 1, '二': 2, '三': 3, '四': 4,
+    '五': 5, '六': 6, '七': 7, '八': 8, '九': 9,
+    '十': 10, '百': 100, '千': 1000,
+}
+
+def _cn_to_int(s):
+    if not s:
+        return 0
+    if s in _CN_NUM and _CN_NUM[s] < 10:
+        return _CN_NUM[s]
+    result = tmp = 0
+    for ch in s:
+        num = _CN_NUM.get(ch, 0)
+        if num >= 10:
+            if tmp == 0:
+                tmp = 1
+            result += tmp * num
+            tmp = 0
+        else:
+            tmp = num
+    return result + tmp
+
+def _normalize_chapter_title(title):
+    t = re.sub(r'[.、，。．]', ' ', title.strip())
+    m = re.search(r'第?\s*(\d+|[一二三四五六七八九十百千零]+)\s*([章节篇])', t)
+    if m:
+        num = int(m.group(1)) if m.group(1).isdigit() else _cn_to_int(m.group(1))
+        name = t[m.end():].replace(" ", "")
+        return f'第{num}章 {name}'
+    parts = t.split(None, 1)
+    if parts and parts[0].isdigit():
+        name = parts[1].replace(" ", "") if len(parts) > 1 else ''
+        return f'第{parts[0]}章 {name}'
+    return title.strip()
+
+def _link_url(a):
+    href = a.get("href", "")
+    if not href or href.startswith("javascript"):
+        onclick = a.get("onclick", "")
+        if onclick:
+            m = re.search(r"location\.href\s*=\s*'([^']+)'", onclick)
+            href = m.group(1) if m else ""
+    return href
+
 def collect_chapter_links(config, page_urls):
     """遍历所有目录页，提取 (url, title)"""
-    list_sel = config.get("list_sel", "ul.section-list.fix")
+    list_sel = config.get("list_sel", "")
+    url_regex = config.get("chapter_url_regex", "")
+    pattern = re.compile(url_regex) if url_regex else None
     list_idx = config.get("list_idx", 0)
-    link_sel = config.get("link_sel", "a")
-    href_attr = config.get("href_attr", "href")
-    domain = base_of(page_urls[0]) if page_urls else ""
+    domain = page_urls[0] if page_urls else ""
 
     links = []
     for page_url in page_urls:
@@ -151,17 +196,33 @@ def collect_chapter_links(config, page_urls):
         except Exception as e:
             print(f"  Skip page: {page_url} ({e})")
             continue
-        containers = soup.select(list_sel)
-        if list_idx >= len(containers):
-            continue
-        for a in containers[list_idx].select(link_sel):
-            href = a.get(href_attr, "")
-            text = a.get_text(strip=True)
-            if href:
-                if not href.startswith("http"):
-                    href = urljoin(domain, href)
-                links.append((href, text))
-    return links
+
+        if list_sel:
+            roots = soup.select(list_sel)
+            if list_idx >= len(roots):
+                continue
+            for a in roots[list_idx].select("a[href], a[onclick]"):
+                href = _link_url(a)
+                if href:
+                    if not href.startswith("http"):
+                        href = urljoin(domain, href)
+                    links.append((href, _normalize_chapter_title(a.get_text(strip=True))))
+        elif pattern:
+            for a in soup.select("a[href], a[onclick]"):
+                href = _link_url(a)
+                if href and pattern.search(href):
+                    if not href.startswith("http"):
+                        href = urljoin(domain, href)
+                    links.append((href, _normalize_chapter_title(a.get_text(strip=True))))
+    # 去重：保留最后一次出现的顺序和标题
+    seen = set()
+    result = []
+    for href, title in reversed(links):
+        if href not in seen:
+            seen.add(href)
+            result.append((href, title))
+    result.reverse()
+    return result
 
 
 # ============================================================
@@ -177,7 +238,7 @@ def _remove_selectors(soup, selectors):
 def parse_article(url, config, link_title=""):
     """解析单章正文，含多页合并"""
     body_sel = config.get("content_body", "div.content")
-    next_text = config.get("next_page", "")
+    next_page = config.get("next_page", "")
     max_pages = config.get("next_page_max", 10)
     clean = config.get("content_clean", {})
 
@@ -190,34 +251,39 @@ def parse_article(url, config, link_title=""):
     content = el.get_text("\n") if el else ""
 
     # 多页合并
-    page_url = url
-    for _ in range(max_pages - 1):
-        a = soup.find("a", string=re.compile(re.escape(next_text))) if next_text else None
-        if not a:
-            break
-        href = a.get("href", "")
-        if not href or href.startswith("#"):
-            break
-        next_url = urljoin(page_url, href)
-        if next_url == page_url:
-            break
-        page_url = next_url
-        soup = soup_of(next_url)
-        _remove_selectors(soup, clean.get("remove_selectors", []))
-        el = soup.select_one(body_sel)
-        if el:
-            content += "\n" + el.get_text("\n")
-        time.sleep(0.2)
+    if next_page:
+        base_url, ext = os.path.splitext(url)
+        if not ext:
+            ext = ""
+        page_url = url
+        for page_idx in range(2, max_pages + 1):
+            next_url = f"{base_url}{next_page % page_idx}{ext}"
+            if next_url == page_url:
+                break
+            try:
+                page_soup = soup_of(next_url)
+            except Exception:
+                break
+            _remove_selectors(page_soup, clean.get("remove_selectors", []))
+            el = page_soup.select_one(body_sel)
+            if el:
+                content += "\n" + el.get_text("\n")
+            page_url = next_url
+            time.sleep(0.2)
+
 
     # 提取后：文本清洗
     lines = content.split("\n")
     if clean.get("remove_lines"):
-        lines = [l for l in lines if not any(re.search(pat, l) for pat in clean["remove_lines"])]
+        key = "_compiled"
+        if key not in clean:
+            clean[key] = [re.compile(p) for p in clean["remove_lines"]]
+        lines = [l for l in lines if not any(p.search(l) for p in clean[key])]
     if clean.get("strip_empty"):
         lines = [l for l in lines if l.strip()]
     if clean.get("trim"):
         lines = [l.strip() for l in lines]
-    content = "\n".join(lines).strip()
+    content = "\n".join(lines).strip().replace("\ufeff", "")
 
     return title, content
 
@@ -230,26 +296,19 @@ def sanitize(s):
     return re.sub(r'[<>:"/\\|?*]', "", s).strip()[:80]
 
 def out_dir(config, novel_name):
-    d = config.get("out_dir", "{script_dir}/{name}")
-    d = d.replace("{script_dir}", SCRIPT_DIR).replace("{name}", novel_name)
+    base = config.get("out_combine_dir", SCRIPT_DIR)
+    d = os.path.join(base, novel_name)
     os.makedirs(d, exist_ok=True)
     return d
 
 def out_path(config, novel_name, index, title):
-    pattern = config.get("out_file", "{index:04d}_{title}.txt")
-    fname = pattern.format(index=index, title=sanitize(title))
+    fname = f"{index:04d}_{sanitize(title)}.txt"
     return os.path.join(out_dir(config, novel_name), fname)
 
 def combine_path(config, novel_name):
-    pattern = config.get("out_combine", "{name}.txt")
-    fname = pattern.replace("{name}", novel_name)
-    d = config.get("out_combine_dir", "")
-    if d:
-        d = d.replace("{script_dir}", SCRIPT_DIR).replace("{name}", novel_name)
-        os.makedirs(d, exist_ok=True)
-    else:
-        d = out_dir(config, novel_name)
-    return os.path.join(d, fname)
+    base = config.get("out_combine_dir", SCRIPT_DIR)
+    os.makedirs(base, exist_ok=True)
+    return os.path.join(base, f"{novel_name}.txt")
 
 def chapter_exists(config, novel_name, index):
     d = out_dir(config, novel_name)
@@ -315,25 +374,33 @@ def run(url, update=False):
     index_soup = soup_of(url)
 
     # 1. 小说名
-    novel_name = extract_name(config, url, index_soup)
+    novel_name = extract_name(url, index_soup, config)
     print(f"Novel: {novel_name}")
 
-    # 2. 目录页列表
+    # 2. 预扫描已存在的章节（避免逐章 glob）
+    d = out_dir(config, novel_name)
+    existing_indices = set()
+    for f in os.listdir(d):
+        prefix = f.split("_", 1)[0]
+        if prefix.isdigit():
+            existing_indices.add(int(prefix))
+
+    # 3. 目录页列表
     page_urls = resolve_page_urls(config, url, index_soup)
     print(f"Pages: {len(page_urls)}")
 
-    # 3. 章节链接 (url, title)
+    # 4. 章节链接 (url, title)
     links = collect_chapter_links(config, page_urls)
     print(f"Chapters: {len(links)}")
     if not links:
         return
 
-    # 4. 筛选待下载
+    # 5. 筛选待下载
     tail = config.get("tail", 30) if update else 0
     total = len(links)
     todo = []
     for i, (link_url, link_title) in enumerate(links, 1):
-        exists = chapter_exists(config, novel_name, i)
+        exists = i in existing_indices
         if update and i < (total - tail + 1) and exists:
             continue
         if not exists:
@@ -365,7 +432,7 @@ def run(url, update=False):
 def main():
     import argparse
     ap = argparse.ArgumentParser(description="小说爬虫")
-    ap.add_argument("url", nargs="?", help="小说目录页 URL")
+    ap.add_argument("url", nargs="?", help="小说目录页 URL 或搜索关键词")
     ap.add_argument("--update", action="store_true", help="增量更新")
     ap.add_argument("--list", action="store_true", help="列出可用配置")
     args = ap.parse_args()
@@ -376,8 +443,20 @@ def main():
         return
 
     if not args.url:
-        print("Usage: python novel_crawler.py <URL> [--update]")
+        print("Usage: python novel_crawler.py <URL|关键词> [--update]")
         sys.exit(1)
+
+    if not args.url.startswith(("http://", "https://")):
+        configs = load_configs()
+        opened = 0
+        for v in configs.values():
+            if "search_url" in v:
+                webbrowser.open(v["search_url"] + quote(args.url))
+                print(f"  {v['search_url']}{args.url}")
+                opened += 1
+        if not opened:
+            print("No search URL configured")
+        return
 
     run(args.url, args.update)
 

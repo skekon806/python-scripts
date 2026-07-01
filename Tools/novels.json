@@ -1,70 +1,126 @@
 {
     "22biqu.com": {
-        "name": "from:title",
+        "search_url": "https://www.22biqu.com/ss/?searchkey=",
+        "name_sel": "#top h1",
         "page_from_select": "select#indexselect",
         "list_sel": "ul.section-list.fix",
         "list_idx": 1,
-        "link_sel": "a",
-        "href_attr": "href",
         "content_body": "div.content#content",
-        "next_page": "下一页",
-        "next_page_max": 10,
+        "next_page": "_%d",
+        "next_page_max": 2,
         "content_clean": {
-            "remove_selectors": ["h1.title", "script"],
-            "remove_lines": ["[（(]第.*?章[）)]", "本章未完"],
+            "remove_selectors": ["h1.title","script"],
+            "remove_lines": ["[（(]第.*?章[）)]","本章未完"],
             "strip_empty": true,
             "trim": true
         },
-        "out_dir": "D:/Files/Documents/E-book/{name}",
-        "out_file": "{index:04d}_{title}.txt",
-        "out_combine": "{name}.txt",
         "out_combine_dir": "D:/Files/Documents/E-book",
-        "workers": 8,
+        "workers": 4,
         "anti_challenge": true
     },
     "jawsms.com": {
-        "name": "from:h1",
+        "search_url": "http://www.jawsms.com/search.php?keyWord=",
+        "name_sel": "#top h1",
         "page_from_select": "select[name=pageselect]",
         "list_sel": "ul.section-list.fix",
         "list_idx": 1,
-        "link_sel": "a",
-        "href_attr": "href",
         "content_body": "div.content#content",
-        "next_page": "下一页",
-        "next_page_max": 10,
+        "next_page": "_%d",
+        "next_page_max": 2,
         "content_clean": {
             "remove_selectors": ["script"],
             "strip_empty": true,
             "trim": true
         },
-        "out_dir": "D:/Files/Documents/E-book/{name}",
-        "out_file": "{index:04d}_{title}.txt",
-        "out_combine": "{name}.txt",
         "out_combine_dir": "D:/Files/Documents/E-book",
-        "workers": 8,
+        "workers": 4,
         "anti_challenge": true
     },
-    "bookszw.com": {
-        "name": "from:title",
-        "page_from_select": "select[name=pageselect]",
-        "list_sel": "ul.section-list.fix",
-        "list_idx": 1,
-        "link_sel": "a",
-        "href_attr": "href",
-        "content_body": "div#content",
-        "next_page": "下一页",
-        "next_page_max": 10,
+    "ibiquw.org": {
+        "search_url": "http://www.ibiquw.org/modules/article/search.php?action=login&searchkey=",
+        "name_sel": "#info h1",
+        "list_sel": "div.book_list",
+        "list_idx": 0,
+        "content_body": "#htmlContent",
         "content_clean": {
-            "remove_selectors": ["h1.title", "script"],
-            "remove_lines": ["[（(]第.*?页[）)]", "本章未完"],
+            "remove_selectors": ["script"],
             "strip_empty": true,
             "trim": true
         },
-        "out_dir": "D:/Files/Documents/E-book/{name}",
-        "out_file": "{index:04d}_{title}.txt",
-        "out_combine": "{name}.txt",
         "out_combine_dir": "D:/Files/Documents/E-book",
-        "workers": 3,
+        "workers": 4,
+        "anti_challenge": true
+    },
+    "xbiquwk.com": {
+        "search_url": "http://www.xbiquwk.com/modules/article/search.php?searchkey=",
+        "name_sel": "#info h1",
+        "list_sel": "div.box_con",
+        "list_idx": 1,
+        "content_body": "#content",
+        "content_clean": {
+            "strip_empty": true,
+            "trim": true
+        },
+        "out_combine_dir": "D:/Files/Documents/E-book",
+        "workers": 4,
+        "anti_challenge": true
+    },
+    "99xs.info":{
+        "name_sel":"div.info h2",
+        "list_sel":"div.listmain",
+        "list_idx": 0,
+        "content_body": "div#content.showtxt",
+        "content_clean": {
+            "remove_lines": ["首发域名", "鸟书网"],
+            "strip_empty": true,
+            "trim": true
+        },
+        "out_combine_dir": "D:/Files/Documents/E-book",
+        "workers": 4,
+        "anti_challenge": true
+    },
+    "ujxsw.org":{
+        "name_sel":"div#smallcons h1",
+        "list_sel":"div#readerlist ul",
+        "list_idx": 0,
+        "content_body": "div.read-content",
+        "content_clean": {
+            "remove_lines": ["无弹窗免费", "电子书免费"],
+            "remove_selectors": ["div#center_tip"],
+            "strip_empty": true,
+            "trim": true
+        },
+        "out_combine_dir": "D:/Files/Documents/E-book",
+        "workers": 4,
+        "anti_challenge": true
+    },
+    "wangshuwx.com":{
+        "name_sel":"div#info h1",
+        "list_sel":"div.box_con",
+        "list_idx":1,
+        "content_body":"#content",
+        "content_clean": {
+            "strip_empty": true,
+            "trim": true
+        },
+        "out_combine_dir": "D:/Files/Documents/E-book",
+        "workers": 4,
+        "anti_challenge": true
+    },
+    "shuhaige.net":{
+        "name_sel":"div#info h1",
+        "list_sel":"div.box_con",
+        "list_idx":1,
+        "content_body":"#content",
+        "next_page": "_%d",
+        "next_page_max": 2,
+        "content_clean": {
+            "remove_lines": ["本小章还未完", "书海阁小说网"],
+            "strip_empty": true,
+            "trim": true
+        },
+        "out_combine_dir": "D:/Files/Documents/E-book",
+        "workers": 2,
         "anti_challenge": true
     }
 }
