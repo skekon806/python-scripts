@@ -239,7 +239,6 @@ def parse_article(url, config, link_title=""):
     """解析单章正文，含多页合并"""
     body_sel = config.get("content_body", "div.content")
     next_page = config.get("next_page", "")
-    max_pages = config.get("next_page_max", 10)
     clean = config.get("content_clean", {})
 
     soup = soup_of(url)
@@ -252,14 +251,11 @@ def parse_article(url, config, link_title=""):
 
     # 多页合并
     if next_page:
-        base_url, ext = os.path.splitext(url)
-        if not ext:
-            ext = ""
-        page_url = url
-        for page_idx in range(2, max_pages + 1):
-            next_url = f"{base_url}{next_page % page_idx}{ext}"
-            if next_url == page_url:
-                break
+        for entry in next_page:
+            search, replace = entry.split(", ", 1)
+            next_url = url.replace(search, replace)
+            if next_url == url:
+                continue
             try:
                 page_soup = soup_of(next_url)
             except Exception:
@@ -268,7 +264,6 @@ def parse_article(url, config, link_title=""):
             el = page_soup.select_one(body_sel)
             if el:
                 content += "\n" + el.get_text("\n")
-            page_url = next_url
             time.sleep(0.2)
 
 

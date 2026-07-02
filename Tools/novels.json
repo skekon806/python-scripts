@@ -1,16 +1,15 @@
 {
     "22biqu.com": {
         "search_url": "https://www.22biqu.com/ss/?searchkey=",
-        "name_sel": "#top h1",
+        "name_sel": ".top h1",
         "page_from_select": "select#indexselect",
         "list_sel": "ul.section-list.fix",
         "list_idx": 1,
         "content_body": "div.content#content",
-        "next_page": "_%d",
-        "next_page_max": 2,
+        "next_page": [".html, _2.html"],
         "content_clean": {
             "remove_selectors": ["h1.title","script"],
-            "remove_lines": ["[（(]第.*?章[）)]","本章未完"],
+            "remove_lines": ["第.*?章","本章未完"],
             "strip_empty": true,
             "trim": true
         },
@@ -20,13 +19,12 @@
     },
     "jawsms.com": {
         "search_url": "http://www.jawsms.com/search.php?keyWord=",
-        "name_sel": "#top h1",
+        "name_sel": ".top h1",
         "page_from_select": "select[name=pageselect]",
         "list_sel": "ul.section-list.fix",
         "list_idx": 1,
         "content_body": "div.content#content",
-        "next_page": "_%d",
-        "next_page_max": 2,
+        "next_page": [".html, _2.html"],
         "content_clean": {
             "remove_selectors": ["script"],
             "strip_empty": true,
@@ -66,6 +64,7 @@
         "anti_challenge": true
     },
     "99xs.info":{
+        "search_url": "http://www.99xs.info/read/search/?searchkey=",
         "name_sel":"div.info h2",
         "list_sel":"div.listmain",
         "list_idx": 0,
@@ -80,6 +79,7 @@
         "anti_challenge": true
     },
     "ujxsw.org":{
+        "search_url":"http://www.ujxsw.org/searchbooks.php/?searchkey=",
         "name_sel":"div#smallcons h1",
         "list_sel":"div#readerlist ul",
         "list_idx": 0,
@@ -95,6 +95,7 @@
         "anti_challenge": true
     },
     "wangshuwx.com":{
+        "search_url":"http://www.wangshuwx.com/modules/article/search.php/?searchtype=articlename&searchkey=",
         "name_sel":"div#info h1",
         "list_sel":"div.box_con",
         "list_idx":1,
@@ -108,12 +109,12 @@
         "anti_challenge": true
     },
     "shuhaige.net":{
+        "search_url":"https://www.shuhaige.net/search.html/?searchtype=all&searchkey=",
         "name_sel":"div#info h1",
         "list_sel":"div.box_con",
         "list_idx":1,
         "content_body":"#content",
-        "next_page": "_%d",
-        "next_page_max": 2,
+        "next_page": [".html, _2.html"],
         "content_clean": {
             "remove_lines": ["本小章还未完", "书海阁小说网"],
             "strip_empty": true,
@@ -121,6 +122,63 @@
         },
         "out_combine_dir": "D:/Files/Documents/E-book",
         "workers": 2,
+        "anti_challenge": true
+    },
+    "xbiqugu.la":{
+        "search_url":"http://www.xbiqugu.la/modules/article/waps.php/?searchkey=",
+        "name_sel":"div#info h1",
+        "list_sel":"div.box_con",
+        "list_idx":1,
+        "content_body":"#content",
+        "content_clean": {
+            "remove_selectors": ["div#center_tip","div#content p"],
+            "strip_empty": true,
+            "trim": true
+        },
+        "out_combine_dir": "D:/Files/Documents/E-book",
+        "workers": 4,
+        "anti_challenge": true
+    },
+    "mcxs.la":{
+        "search_url":"http://www.mcxs.la/search.html/?name=",
+        "name_sel":"div#info h1",
+        "list_sel":"div.box_con",
+        "list_idx":1,
+        "content_body":"#content",
+        "content_clean": {
+            "remove_selectors": ["div#content div","div#content p"],
+            "strip_empty": true,
+            "trim": true
+        },
+        "out_combine_dir": "D:/Files/Documents/E-book",
+        "workers": 4,
+        "anti_challenge": true
+    },
+    "biquge365.net":{
+        "name_sel":"div.right_border h1",
+        "list_sel":"ul.info",
+        "content_body":"div#txt.txt",
+        "content_clean": {
+            "remove_selectors": ["div#txt.txt p"],
+            "strip_empty": true,
+            "trim": true
+        },
+        "out_combine_dir": "D:/Files/Documents/E-book",
+        "workers": 4,
+        "anti_challenge": true
+    },
+    "qbxsw.com":{
+        "name_sel":"div#info h1",
+        "list_sel":"div.box_con",
+        "list_idx":1,
+        "content_body":"#content",
+        "content_clean": {
+            "remove_lines": ["全本小说网"],
+            "strip_empty": true,
+            "trim": true
+        },
+        "out_combine_dir": "D:/Files/Documents/E-book",
+        "workers": 4,
         "anti_challenge": true
     }
 }
