@@ -1,12 +1,12 @@
 """
 小说爬虫 — 配置驱动简化版
 用法:
-  python novel_crawler.py <URL>
-  python novel_crawler.py <URL> --update
-  python novel_crawler.py --list
+  python novel_crawler.py <URL>           下载新书
+  python novel_crawler.py --update        列出已下载书名
+  python novel_crawler.py <书名> --update 增量更新
 """
 
-import re, time, os, sys, json, glob, webbrowser
+import re, time, os, sys, json, glob, csv, webbrowser
 from urllib.parse import urljoin, urlparse, quote
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -64,6 +64,8 @@ def soup_of(url):
 # 配置加载
 # ============================================================
 
+CSV_NAME = "novels.csv"
+
 def load_configs():
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -76,6 +78,35 @@ def match_config(url):
         if domain_key in host:
             return domain_key, configs[domain_key]
     return None, None
+
+def _csv_path():
+    cfg = load_configs()
+    base = SCRIPT_DIR
+    for v in cfg.values():
+        if "out_combine_dir" in v:
+            base = v["out_combine_dir"]
+            break
+    return os.path.join(base, CSV_NAME)
+
+def _read_novel_csv():
+    p = _csv_path()
+    if not os.path.exists(p):
+        return {}
+    with open(p, "r", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        next(reader, None)
+        return {row[0]: row[1] for row in reader if len(row) >= 2}
+
+def _append_novel_csv(name, url):
+    p = _csv_path()
+    os.makedirs(os.path.dirname(p), exist_ok=True)
+    records = _read_novel_csv()
+    records[name] = url
+    with open(p, "w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["name", "url"])
+        for n, u in records.items():
+            w.writerow([n, u])
 
 
 # ============================================================
@@ -161,6 +192,7 @@ def _cn_to_int(s):
 
 def _normalize_chapter_title(title):
     t = re.sub(r'[.、，。．]', ' ', title.strip())
+    t = re.sub(r'[（(【][^）】]*?(?:更|求|感谢|月票|订阅|推荐|打赏|盟主).*$', '', t)
     m = re.search(r'第?\s*(\d+|[一二三四五六七八九十百千零]+)\s*([章节篇])', t)
     if m:
         num = int(m.group(1)) if m.group(1).isdigit() else _cn_to_int(m.group(1))
@@ -423,37 +455,50 @@ def run(url, update=False):
     for path in combine_chapters(config, novel_name):
         print(f"Combined -> {path}")
 
+    if not update:
+        _append_novel_csv(novel_name, url)
+
+    return novel_name
+
 
 def main():
     import argparse
     ap = argparse.ArgumentParser(description="小说爬虫")
     ap.add_argument("url", nargs="?", help="小说目录页 URL 或搜索关键词")
-    ap.add_argument("--update", action="store_true", help="增量更新")
-    ap.add_argument("--list", action="store_true", help="列出可用配置")
+    ap.add_argument("--update", action="store_true", help="增量更新（输入小说名）")
     args = ap.parse_args()
 
-    if args.list:
-        for k in load_configs():
-            print(f"  {k}")
+    if args.update:
+        novels = _read_novel_csv()
+        if not args.url:
+            for name in novels:
+                print(name)
+            return
+        if args.url in novels:
+            run(novels[args.url], update=True)
+        else:
+            print(f"Error: '{args.url}' not found in {_csv_path()}")
+            sys.exit(1)
         return
 
     if not args.url:
-        print("Usage: python novel_crawler.py <URL|关键词> [--update]")
+        print("Usage: python novel_crawler.py <URL> [--update <书名>]")
         sys.exit(1)
 
-    if not args.url.startswith(("http://", "https://")):
-        configs = load_configs()
-        opened = 0
-        for v in configs.values():
-            if "search_url" in v:
-                webbrowser.open(v["search_url"] + quote(args.url))
-                print(f"  {v['search_url']}{args.url}")
-                opened += 1
-        if not opened:
-            print("No search URL configured")
+    if args.url.startswith(("http://", "https://")):
+        run(args.url)
         return
 
-    run(args.url, args.update)
+    # 搜索模式
+    _, site_configs = load_configs()
+    opened = 0
+    for v in site_configs.values():
+        if "search_url" in v:
+            webbrowser.open(v["search_url"] + quote(args.url))
+            print(f"  {v['search_url']}{args.url}")
+            opened += 1
+    if not opened:
+        print("No search URL configured")
 
 
 if __name__ == "__main__":

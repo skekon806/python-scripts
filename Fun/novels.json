@@ -9,11 +9,11 @@
         "next_page": [".html, _2.html"],
         "content_clean": {
             "remove_selectors": ["h1.title","script"],
-            "remove_lines": ["第.*?章","本章未完"],
+            "remove_lines": ["第.*?章","本章未?完"],
             "strip_empty": true,
             "trim": true
         },
-        "out_combine_dir": "D:/Files/Documents/E-book",
+        "out_combine_dir": "D:/Files/Documents/E-book/网络文学",
         "workers": 4,
         "anti_challenge": true
     },
@@ -30,7 +30,7 @@
             "strip_empty": true,
             "trim": true
         },
-        "out_combine_dir": "D:/Files/Documents/E-book",
+        "out_combine_dir": "D:/Files/Documents/E-book/网络文学",
         "workers": 4,
         "anti_challenge": true
     },
@@ -45,7 +45,7 @@
             "strip_empty": true,
             "trim": true
         },
-        "out_combine_dir": "D:/Files/Documents/E-book",
+        "out_combine_dir": "D:/Files/Documents/E-book/网络文学",
         "workers": 4,
         "anti_challenge": true
     },
@@ -56,10 +56,11 @@
         "list_idx": 1,
         "content_body": "#content",
         "content_clean": {
+            "remove_lines":["最新网址"],
             "strip_empty": true,
             "trim": true
         },
-        "out_combine_dir": "D:/Files/Documents/E-book",
+        "out_combine_dir": "D:/Files/Documents/E-book/网络文学",
         "workers": 4,
         "anti_challenge": true
     },
@@ -74,7 +75,7 @@
             "strip_empty": true,
             "trim": true
         },
-        "out_combine_dir": "D:/Files/Documents/E-book",
+        "out_combine_dir": "D:/Files/Documents/E-book/网络文学",
         "workers": 4,
         "anti_challenge": true
     },
@@ -90,7 +91,7 @@
             "strip_empty": true,
             "trim": true
         },
-        "out_combine_dir": "D:/Files/Documents/E-book",
+        "out_combine_dir": "D:/Files/Documents/E-book/网络文学",
         "workers": 4,
         "anti_challenge": true
     },
@@ -104,7 +105,7 @@
             "strip_empty": true,
             "trim": true
         },
-        "out_combine_dir": "D:/Files/Documents/E-book",
+        "out_combine_dir": "D:/Files/Documents/E-book/网络文学",
         "workers": 4,
         "anti_challenge": true
     },
@@ -120,7 +121,7 @@
             "strip_empty": true,
             "trim": true
         },
-        "out_combine_dir": "D:/Files/Documents/E-book",
+        "out_combine_dir": "D:/Files/Documents/E-book/网络文学",
         "workers": 2,
         "anti_challenge": true
     },
@@ -135,7 +136,7 @@
             "strip_empty": true,
             "trim": true
         },
-        "out_combine_dir": "D:/Files/Documents/E-book",
+        "out_combine_dir": "D:/Files/Documents/E-book/网络文学",
         "workers": 4,
         "anti_challenge": true
     },
@@ -150,7 +151,7 @@
             "strip_empty": true,
             "trim": true
         },
-        "out_combine_dir": "D:/Files/Documents/E-book",
+        "out_combine_dir": "D:/Files/Documents/E-book/网络文学",
         "workers": 4,
         "anti_challenge": true
     },
@@ -163,7 +164,7 @@
             "strip_empty": true,
             "trim": true
         },
-        "out_combine_dir": "D:/Files/Documents/E-book",
+        "out_combine_dir": "D:/Files/Documents/E-book/网络文学",
         "workers": 4,
         "anti_challenge": true
     },
@@ -177,7 +178,7 @@
             "strip_empty": true,
             "trim": true
         },
-        "out_combine_dir": "D:/Files/Documents/E-book",
+        "out_combine_dir": "D:/Files/Documents/E-book/网络文学",
         "workers": 4,
         "anti_challenge": true
     }
