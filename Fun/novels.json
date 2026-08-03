@@ -1,22 +1,4 @@
 {
-    "22biqu.com": {
-        "search_url": "https://www.22biqu.com/ss/?searchkey=",
-        "name_sel": ".top h1",
-        "page_from_select": "select#indexselect",
-        "list_sel": "ul.section-list.fix",
-        "list_idx": 1,
-        "content_body": "div.content#content",
-        "next_page": [".html, _2.html"],
-        "content_clean": {
-            "remove_selectors": ["h1.title","script"],
-            "remove_lines": ["第.*?章","本章未?完"],
-            "strip_empty": true,
-            "trim": true
-        },
-        "out_combine_dir": "D:/Files/Documents/E-book/网络文学",
-        "workers": 4,
-        "anti_challenge": true
-    },
     "jawsms.com": {
         "search_url": "http://www.jawsms.com/search.php?keyWord=",
         "name_sel": ".top h1",
@@ -57,21 +39,6 @@
         "content_body": "#content",
         "content_clean": {
             "remove_lines":["最新网址"],
-            "strip_empty": true,
-            "trim": true
-        },
-        "out_combine_dir": "D:/Files/Documents/E-book/网络文学",
-        "workers": 4,
-        "anti_challenge": true
-    },
-    "99xs.info":{
-        "search_url": "http://www.99xs.info/read/search/?searchkey=",
-        "name_sel":"div.info h2",
-        "list_sel":"div.listmain",
-        "list_idx": 0,
-        "content_body": "div#content.showtxt",
-        "content_clean": {
-            "remove_lines": ["首发域名", "鸟书网"],
             "strip_empty": true,
             "trim": true
         },
